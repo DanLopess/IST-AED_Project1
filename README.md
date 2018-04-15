@@ -6,3 +6,4 @@
 - Already have a menu
 - Main function written
 - Using own library that contains small functions
+- Code in its first stages
