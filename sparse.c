@@ -68,5 +68,3 @@ void menu(){ /* Maybe there's no need for menu - check it */
 "10 - Guardar livros em ficheiro \n0 - Sair \n"
 "************************* \n");
 }
-
-nice
