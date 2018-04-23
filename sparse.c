@@ -13,7 +13,7 @@ Code Subject: Sparse Matrices
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
-#include "small_func.h"
+
 
 /* Pre-processed constants and structures*/
 #define MAXELEMENTS 10000 /* Maximum elements allowed in matrix*/
@@ -21,17 +21,22 @@ Code Subject: Sparse Matrices
 typedef struct{
   unsigned int line, column;
   double value;
-} matrixElement; /* a matrix element e represented by line, column and value */
+} matrixElement; /* matrix element represented by line, column and value */
+
 
 /* Global Variables */
-matrixElement matrix[MAXELEMENTS];
 double elementZero = 0.000; /* Zero is initially represented by 0 */
-int matrixSize = 0; /* Counting variable for matrix size */
+int lastElement = 0; /* Counting variable for matrix size */
 int i; /* used in for cycles  */
+matrixElement matrix[MAXELEMENTS];
 
 /* Function Declaration/Prototype */
-void printElements(matrixElement *matrix);
-void printDetails(matrixElement *matrix);
+void addElement();
+void printElements();
+void printDetails();
+void listLines(int line);
+void listColumns(int column);
+
 
 /* Main Function */
 int main(){
@@ -43,18 +48,27 @@ int main(){
     if (command != 'q'){
       switch (command){
         case 'a':{
-          matrixElement addNewElement;
-          scanf("%u%u%lf*['\n']", &addNewElement.line, &addNewElement.column, &addNewElement.value);
-          matrix[matrixSize] = addNewElement;
-          matrixSize++;
+          addElement();
           break;
         }
         case 'p':{
-          printElements(matrix);
+          printElements(); /* lastElement passed by reference so it can't be modified*/
           break;
         }
         case 'i':{
-          printDetails(matrix);
+          printDetails();
+          break;
+        }
+        case 'l':{
+          int line;
+          scanf("%d*['\n']", &line);
+          listLines(line);
+          break;
+        }
+        case 'c':{
+          int column;
+          scanf("%d*['\n']", &column);
+          listColumns(column);
           break;
         }
       }
@@ -68,17 +82,69 @@ int main(){
 
 
 /* Function Implementation */
-void printElements(matrixElement *matrix){
-  if (matrixSize == 0)
+#include "small_func.h" /* Library that contains auxiliary functions */
+
+void addElement(){
+  matrixElement addNewElement;
+  int added = 0;
+  scanf("%u%u%lf*['\n']", &addNewElement.line, &addNewElement.column, &addNewElement.value);
+  for (i = 0; i < lastElement; i++){
+    if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){
+        matrix[i] = addNewElement;
+        added = 1;
+        break;
+    }
+  }
+  if (!added){
+    matrix[lastElement] = addNewElement;
+    lastElement++;
+  }
+}
+
+void printElements(){
+  if (lastElement == 0)
     printf("empty matrix\n");
   else
-    for (i = 0; i < matrixSize; i++)
+    for (i = lastElement-1; i >= 0; i--)
       if (matrix[i].value != elementZero)
         printf("[%d;%d]=%.3f\n", matrix[i].line, matrix[i].column, matrix[i].value);
 }
 
-void printDetails(matrixElement *matrix){
-  if (matrixSize == 0)
+void printDetails(){
+  int superior_line = maxLine(matrix,0,lastElement), superior_colmn = maxColmn(matrix,0,lastElement);
+  int inferior_line = minLine(matrix,0,lastElement), inferior_colmn = minColmn(matrix, 0,lastElement);
+  int size = (superior_line-inferior_line+1) * (superior_colmn-inferior_colmn+1); /* Finds out the matrix size */
+  double ratio = (double)lastElement / size;
+
+  if (lastElement == 0)
     printf("empty matrix\n");
   else
+    printf("[%d %d] [%d %d] %d / %d = %.3f%% \n",inferior_line, inferior_colmn,
+    superior_line,superior_colmn, lastElement, size, ratio*100);
+}
+
+void listLines(int line){
+  int not_zero = 0; /* Checks if all elements within the limits are zero*/
+  matrixElement line_elements[MAXELEMENTS]; /* auxiliary */
+
+  if (line <= maxLine(matrix,0,lastElement) && line >= minLine(matrix,0,lastElement)){
+    for (i = 0; i < lastElement; i++){
+      if (matrix[i].value != elementZero){
+        not_zero = 1;
+        break;
+      }
+    }
+    if (not_zero){
+      for(i = 0; ) /* Fazer funcao vê menor e maior coluna */
+    }
+    else
+      printf("empty line");
+  }
+  else
+    printf("empty line");
+}
+
+void listColumns(int column){
+
+
 }
