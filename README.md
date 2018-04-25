@@ -14,3 +14,10 @@
 - Created global variable that contains the matrix
 - Implemented functions for assigning new elements to matrix
 and printing the matrix
+
+### Version 1.2
+- Sort matrix and compress matrix to be constructed
+- All other functions are operational
+- Program acts as expected
+- Still need to implement reading a matrix from the console
+- Warnings: comparing unsigned with normal int
