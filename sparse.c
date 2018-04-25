@@ -17,6 +17,7 @@ Code Subject: Sparse Matrices
 
 /* Pre-processed constants and structures*/
 #define MAXELEMENTS 10000 /* Maximum elements allowed in matrix*/
+#define MAXFILENAME 80
 
 typedef struct{
   unsigned int line, column;
@@ -34,15 +35,14 @@ void printElements(matrixElement *matrix);
 void printDetails(matrixElement *matrix);
 void printLines(matrixElement *matrix, unsigned int line);
 void printColumns(matrixElement *matrix, unsigned int column);
-/*void sort(matrixElement *matrix);
-void defineZero(matrixElement *matrix, double zero);
-void save_matrix(matrixElement *matrix);
-void compress_matrix(matrixElement *matrix);*/
+/*void sort(matrixElement *matrix);*/
+void save_matrix(matrixElement *matrix, char *file_name);
+/*void compress_matrix(matrixElement *matrix);*/
 
 /* Main Function */
 int main(){
   int end_program = 0;
-  char command;
+  char command, file_name[MAXFILENAME];
   matrixElement matrix[MAXELEMENTS];
 
   do{
@@ -63,17 +63,18 @@ int main(){
         }
         case 'l':{
           unsigned int line;
-          scanf("%u*['\n']", &line);
+          scanf("%u", &line);
           printLines(matrix, line);
           break;
         }
         case 'c':{
           unsigned int column;
-          scanf("%u*['\n']", &column);
+          scanf("%u", &column);
           printColumns(matrix, column);
           break;
         }
         case 'o':{
+
           break;
         }
         case 'z':{
@@ -83,16 +84,24 @@ int main(){
           break;
         }
         case 'w':{
+          char c;
+          if (strlen(file_name) >= 1 && (c = getchar()) == '\n'){
+            save_matrix(matrix, file_name);
+          }
+          else{
+            scanf("%s", file_name);
+            save_matrix(matrix, file_name);
+          }
           break;
         }
         case 's':{
+
           break;
         }
       }
     }
     else end_program = 1;
   } while(end_program == 0);
-
 
   return 0;
 }
@@ -142,34 +151,36 @@ void printDetails(matrixElement *matrix){
 
 void printLines(matrixElement *matrix, unsigned int line){
   matrixElement aux_matrix[MAXELEMENTS];
-  int i,f,size=0,found_value;
+  unsigned int i,f,size=0,found_value;
 
   for (i = 0; i < lastElement; i++){
     if(matrix[i].line == line && matrix[i].value != elementZero){
       aux_matrix[size] = matrix[i];
-      size++;
+      /*printf("Elemento adicionado: Linha %d Coluna %d Valor %.3f", aux_matrix[size].line, aux_matrix[size].column, aux_matrix[size].value);
+      */size++;
     }
   }
-  if (size){
-    for (i = minColmn(aux_matrix,0,size); (unsigned int)i < maxColmn(aux_matrix,0,size); i++){
+  if (size > 0){
+    for (i = minColmn(aux_matrix,0,size); i <= maxColmn(aux_matrix,0,size); i++){
       found_value = 0;
-      for (f = 0; f < size; f++){
-        if (aux_matrix[f].column == (unsigned int) i)
+      for (f = 0; f < size; f++)
+        if (aux_matrix[f].column == i){
           printf("%.3f ", aux_matrix[f].value);
           found_value = 1;
           break;
         }
-      if(!found_value)
+      if(found_value == 0)
         printf("%.3f ", elementZero);
     }
   }
   else
     printf("empty line\n");
-  }
+  printf("\n");
+}
 
 void printColumns(matrixElement *matrix, unsigned int column){
     matrixElement aux_matrix[MAXELEMENTS];
-    int i, f,size=0,found_value;
+    unsigned int i, f,size=0,found_value;
 
     for (i = 0; i < lastElement; i++){
       if(matrix[i].column == column && matrix[i].value != elementZero){
@@ -177,21 +188,22 @@ void printColumns(matrixElement *matrix, unsigned int column){
         size++;
       }
     }
-    if (size){
-      for (i = minLine(aux_matrix,0,size); (unsigned int) i < maxLine(aux_matrix,0,size); i++){
+    if (size > 0){
+      for (i = minLine(aux_matrix,0,size); i <= maxLine(aux_matrix,0,size); i++){
         found_value = 0;
-        for (f = 0; f < size; f++){
-          if (aux_matrix[f].line == (unsigned int) i)
+        for (f = 0; f < size; f++)
+          if (aux_matrix[f].line == i){
             printf("%.3f ", aux_matrix[f].value);
             found_value = 1;
             break;
           }
-        if(!found_value)
+        if(found_value == 0)
           printf("%.3f ", elementZero);
       }
     }
     else
       printf("empty column\n");
+    printf("\n");
 }
 
 /*
@@ -202,4 +214,15 @@ void sort_by_line(matrixElement *matrix, int lastElement){
   qsort(matrix, lastElement, sizeof(matrixElement), cmpfunc_line);
 }*/
 
-/*void save_matrix(matrixElement *matrix); ATE HOJE TEM QUE FAZER TUDO EXCETO COMPRIMIR */
+void save_matrix(matrixElement *matrix, char *file_name){
+    FILE *fptr;
+    int i;
+
+    fptr = fopen(file_name, "w");
+    if(fptr == NULL) /*if file does not exist, create it*/
+        freopen(file_name, "w", fptr);
+    for(i = 0; i < lastElement; i++){
+      fprintf(fptr,"%u %u %.3f\n", matrix[i].line, matrix[i].column, matrix[i].value);
+    }
+    fclose(fptr);
+}
