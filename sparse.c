@@ -34,9 +34,12 @@ matrixElement matrix[MAXELEMENTS];
 void addElement();
 void printElements();
 void printDetails();
-void listLines(int line);
-void listColumns(int column);
-
+void printLines(unsigned int line);
+void printColumns(unsigned int column);
+void sort(matrixElement *matrix);
+void elementZero(double element);
+void save_matrix(matrixElement *matrix);
+void compress_matrix(matrixElement *matrix);
 
 /* Main Function */
 int main(){
@@ -60,15 +63,15 @@ int main(){
           break;
         }
         case 'l':{
-          int line;
-          scanf("%d*['\n']", &line);
-          listLines(line);
+          unsigned int line;
+          scanf("%u*['\n']", &line);
+          printLines(line);
           break;
         }
         case 'c':{
-          int column;
-          scanf("%d*['\n']", &column);
-          listColumns(column);
+          unsigned int column;
+          scanf("%u*['\n']", &column);
+          printColumns(column);
           break;
         }
       }
@@ -111,40 +114,56 @@ void printElements(){
 }
 
 void printDetails(){
-  int superior_line = maxLine(matrix,0,lastElement), superior_colmn = maxColmn(matrix,0,lastElement);
-  int inferior_line = minLine(matrix,0,lastElement), inferior_colmn = minColmn(matrix, 0,lastElement);
+  unsigned int superior_line = maxLine(matrix,0,lastElement), superior_colmn = maxColmn(matrix,0,lastElement);
+  unsigned int inferior_line = minLine(matrix,0,lastElement), inferior_colmn = minColmn(matrix, 0,lastElement);
   int size = (superior_line-inferior_line+1) * (superior_colmn-inferior_colmn+1); /* Finds out the matrix size */
   double ratio = (double)lastElement / size;
 
   if (lastElement == 0)
     printf("empty matrix\n");
   else
-    printf("[%d %d] [%d %d] %d / %d = %.3f%% \n",inferior_line, inferior_colmn,
+    printf("[%d %d] [%d %d] %d / %d = %.3f%% \n", inferior_line, inferior_colmn,
     superior_line,superior_colmn, lastElement, size, ratio*100);
 }
 
-void listLines(int line){
+void printLines(unsigned int line){
   int not_zero = 0; /* Checks if all elements within the limits are zero*/
-  matrixElement line_elements[MAXELEMENTS]; /* auxiliary */
 
   if (line <= maxLine(matrix,0,lastElement) && line >= minLine(matrix,0,lastElement)){
-    for (i = 0; i < lastElement; i++){
-      if (matrix[i].value != elementZero){
+    for (i = 0; i < lastElement; i++){ /* Verifies if there is at least one element different from elementZero*/
+      if (matrix[i].line == line && matrix[i].value != elementZero ){
         not_zero = 1;
         break;
       }
     }
     if (not_zero){
-      for(i = 0; ) /* Fazer funcao vê menor e maior coluna */
+      printLines_aux(matrix,0,lastElement,line, elementZero);
     }
-    else
+
+    else /*If the line only has elementZero values, it is empty*/
       printf("empty line");
   }
   else
     printf("empty line");
 }
 
-void listColumns(int column){
+void printColumns(unsigned int column){
+  int not_zero = 0; /* Checks if all elements within the limits are zero*/
 
+  if (column <= maxColmn(matrix,0,lastElement) && column >= minColmn(matrix,0,lastElement)){
+    for (i = 0; i < lastElement; i++){ /* Verifies if there is at least one element different from elementZero*/
+      if (matrix[i].column == column && matrix[i].value != elementZero ){
+        not_zero = 1;
+        break;
+      }
+    }
+    if (not_zero){
+      printColumns_aux(matrix,0,lastElement,column, elementZero);
+    }
 
+    else /*If the line only has elementZero values, it is empty*/
+      printf("empty column");
+  }
+  else
+    printf("empty column");
 }
