@@ -165,12 +165,12 @@ void printLines(matrixElement *matrix, unsigned int line){
       found_value = 0;
       for (f = 0; f < size; f++)
         if (aux_matrix[f].column == i){
-          printf("%.3f ", aux_matrix[f].value);
+          printf(" %.3f", aux_matrix[f].value);
           found_value = 1;
           break;
         }
       if(found_value == 0)
-        printf("%.3f ", elementZero);
+        printf(" %.3f", elementZero);
     }
   }
   else
@@ -193,12 +193,12 @@ void printColumns(matrixElement *matrix, unsigned int column){
         found_value = 0;
         for (f = 0; f < size; f++)
           if (aux_matrix[f].line == i){
-            printf("%.3f ", aux_matrix[f].value);
+            printf(" %.3f", aux_matrix[f].value);
             found_value = 1;
             break;
           }
         if(found_value == 0)
-          printf("%.3f ", elementZero);
+          printf(" %.3f", elementZero);
       }
     }
     else
