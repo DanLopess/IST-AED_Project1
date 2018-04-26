@@ -13,7 +13,7 @@ unsigned int minLine(matrixElement *matrix, int l_inf, int l_sup){
   for (i = l_inf; i < l_sup; i++)
     if (matrix[i].line < minLine)
       minLine = matrix[i].line;
-  return minLine;
+  return minLine
 }
 unsigned int minColmn(matrixElement *matrix, int l_inf, int l_sup){
   unsigned int minColmn = matrix[0].column;
@@ -46,7 +46,7 @@ double line_density(matrixElement *matrix, int line){
 }
 
 void removesZeros(matrixElement *matrix, l_inf,l_sup){
-  
+
 }
 
 /*Fazer funcao removeZero*/
