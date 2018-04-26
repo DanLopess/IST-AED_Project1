@@ -39,3 +39,21 @@ unsigned int maxColmn(matrixElement *matrix, int l_inf, int l_sup){
       maxColmn = matrix[i].column;
   return maxColmn;
 }
+
+double line_density(matrixElement *matrix, int line){
+  matrixElement aux_vector[MAXELEMENTS];
+  int minColmn
+}
+
+void removesZeros(matrixElement *matrix, l_inf,l_sup){
+  
+}
+
+/*Fazer funcao removeZero*/
+/*Questionar:
+- Como ler a matriz completa : com os args no inicio da main, esta nos slides
+- Vetor contem max 10000elementos != 0, linhas e colunas podem ser mt grandes
+- tem que remover os zeros
+- ver strcopy do nome do ficheiro lido
+
+*/

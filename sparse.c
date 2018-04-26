@@ -28,6 +28,7 @@ typedef struct{
 /* Global Variables */
 double elementZero = 0.000; /* Zero is initially represented by 0 */
 int lastElement = 0; /* Must be global variable so it can be always altered */
+char file_name[MAXFILENAME];
 
 /* Function Declaration/Prototype */
 void addElement(matrixElement *matrix);
@@ -35,18 +36,20 @@ void printElements(matrixElement *matrix);
 void printDetails(matrixElement *matrix);
 void printLines(matrixElement *matrix, unsigned int line);
 void printColumns(matrixElement *matrix, unsigned int column);
-/*void sort(matrixElement *matrix);*/
+int cmpfunc_column (const void *a, const void *b);
+int cmpfunc_line (const void *a, const void *b);
+void sort(matrixElement *matrix, int lineOrColumn);
 void save_matrix(matrixElement *matrix, char *file_name);
 /*void compress_matrix(matrixElement *matrix);*/
 
 /* Main Function */
 int main(){
   int end_program = 0;
-  char command, file_name[MAXFILENAME];
+  char command;
   matrixElement matrix[MAXELEMENTS];
 
   do{
-    scanf("%c*[' ']", &command); /*Reads first character until it finds a blank space*/
+    scanf("%c", &command); /*Reads first character */
     if (command != 'q'){
       switch (command){
         case 'a':{
@@ -74,7 +77,12 @@ int main(){
           break;
         }
         case 'o':{
-
+          char readLine[10];
+          scanf("%s", readLine);
+          if (readLine[1] == '\0') /*If reads "\n\0" then it's lines first*/
+            sort(matrix,0);
+          else if(strcmp(readLine,"column") == 0)
+            sort(matrix,1);
           break;
         }
         case 'z':{
@@ -112,41 +120,42 @@ int main(){
 void addElement(matrixElement *matrix){
   matrixElement addNewElement;
   int added = 0, i;
-  scanf("%u%u%lf*['\n']", &addNewElement.line, &addNewElement.column, &addNewElement.value);
+  scanf("%u%u%lf", &addNewElement.line, &addNewElement.column, &addNewElement.value);
   for (i = 0; i < lastElement; i++){
-    if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){
-        matrix[i] = addNewElement;
-        added = 1;
+    if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){ /*If coordinate already has a value*/
+        if (addNewElement.value != elementZero){
+          matrix[i] = addNewElement;
+          added = 1;
+        }
+        else
+          removesZeros(matrix,i,lastElement);
         break;
     }
   }
-  if (!added){
+  if (!added && addNewElement.value != elementZero){
     matrix[lastElement] = addNewElement;
     lastElement++;
   }
 }
 
 void printElements(matrixElement *matrix){
-  int i;
   if (lastElement == 0)
     printf("empty matrix\n");
   else
+    int i;
     for (i = lastElement-1; i >= 0; i--)
-      if (matrix[i].value != elementZero)
-        printf("[%d;%d]=%.3f\n", matrix[i].line, matrix[i].column, matrix[i].value);
+      printf("[%d;%d]=%.3f\n", matrix[i].line, matrix[i].column, matrix[i].value);
 }
 
 void printDetails(matrixElement *matrix){
-  unsigned int superior_line = maxLine(matrix,0,lastElement), superior_colmn = maxColmn(matrix,0,lastElement);
-  unsigned int inferior_line = minLine(matrix,0,lastElement), inferior_colmn = minColmn(matrix, 0,lastElement);
   int size = (superior_line-inferior_line+1) * (superior_colmn-inferior_colmn+1); /* Finds out the matrix size */
   double ratio = (double)lastElement / size;
 
   if (lastElement == 0)
     printf("empty matrix\n");
   else
-    printf("[%d %d] [%d %d] %d / %d = %.3f%% \n", inferior_line, inferior_colmn,
-    superior_line,superior_colmn, lastElement, size, ratio*100);
+    printf("[%d %d] [%d %d] %d / %d = %.3f%% \n", minLine(matrix,0,lastElement), minColmn(matrix, 0,lastElement),
+    maxLine(matrix,0,lastElement),maxColmn(matrix,0,lastElement), lastElement, size, ratio*100);
 }
 
 void printLines(matrixElement *matrix, unsigned int line){
@@ -156,25 +165,24 @@ void printLines(matrixElement *matrix, unsigned int line){
   for (i = 0; i < lastElement; i++){
     if(matrix[i].line == line && matrix[i].value != elementZero){
       aux_matrix[size] = matrix[i];
-      /*printf("Elemento adicionado: Linha %d Coluna %d Valor %.3f", aux_matrix[size].line, aux_matrix[size].column, aux_matrix[size].value);
-      */size++;
+      size++;
     }
   }
   if (size > 0){
-    for (i = minColmn(aux_matrix,0,size); i <= maxColmn(aux_matrix,0,size); i++){
+    for (i = minColmn(matrix,0,lastElement); i <= maxColmn(matrix,0,lastElement); i++){
       found_value = 0;
       for (f = 0; f < size; f++)
         if (aux_matrix[f].column == i){
-          printf("%.3f ", aux_matrix[f].value);
+          printf(" %.3f", aux_matrix[f].value);
           found_value = 1;
           break;
         }
       if(found_value == 0)
-        printf("%.3f ", elementZero);
+        printf(" %.3f", elementZero);
     }
   }
   else
-    printf("empty line\n");
+    printf("empty line");
   printf("\n");
 }
 
@@ -189,30 +197,44 @@ void printColumns(matrixElement *matrix, unsigned int column){
       }
     }
     if (size > 0){
-      for (i = minLine(aux_matrix,0,size); i <= maxLine(aux_matrix,0,size); i++){
+      for (i = minLine(matrix,0,lastElement); i <= maxLine(matrix,0,lastElement); i++){
         found_value = 0;
         for (f = 0; f < size; f++)
           if (aux_matrix[f].line == i){
-            printf("%.3f ", aux_matrix[f].value);
+            printf(" %.3f", aux_matrix[f].value);
             found_value = 1;
             break;
           }
         if(found_value == 0)
-          printf("%.3f ", elementZero);
+          printf(" %.3f", elementZero);
       }
     }
     else
-      printf("empty column\n");
+      printf("empty column");
     printf("\n");
 }
 
-/*
+
+void sort(matrixElement *matrix, int lineOrColumn){ /*0 - line, 1 - column*/
+  switch(lineOrColumn){
+    case 0:{
+        qsort(matrix, lastElement, sizeof(matrixElement), cmpfunc_line);
+        break;
+    }
+    case 1:{
+        qsort(matrix, lastElement, sizeof(matrixElement), cmpfunc_column);
+        break;
+    }
+  }
+
+}
+
 int cmpfunc_line (const void *a, const void *b) {
    return (strcmp(((matrixElement * )a)->line, ((matrixElement *)b)->line));
 }
-void sort_by_line(matrixElement *matrix, int lastElement){
-  qsort(matrix, lastElement, sizeof(matrixElement), cmpfunc_line);
-}*/
+int cmpfunc_column (const void *a, const void *b) {
+   return (strcmp(((matrixElement * )a)->column, ((matrixElement *)b)->column));
+}
 
 void save_matrix(matrixElement *matrix, char *file_name){
     FILE *fptr;
