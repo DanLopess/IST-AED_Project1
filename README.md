@@ -21,3 +21,9 @@ and printing the matrix
 - Program acts as expected
 - Still need to implement reading a matrix from the console
 - Warnings: comparing unsigned with normal int
+
+### Version 1.3
+- All functions completed except compression
+- Mooshack gives 10 points
+- 6 questions wrong
+- Still some debug to be done
