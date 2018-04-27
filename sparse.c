@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
     fptr = fopen(file_name, "r");
     if(fptr != NULL)
       for (i=0; !feof(fptr);i++)
-        if (fscanf(fptr,"%u %u %lf",&matrix[i].line,&matrix[i].column,&matrix[i].value)==3)  /*As long as 3 inputs and read*/
+        if (fscanf(fptr,"%u %u %lf",&matrix[i].line,&matrix[i].column,&matrix[i].value)==3)
           lastElement++;
     fclose(fptr);
   }
@@ -142,7 +142,7 @@ void addElement(matrixElement *matrix){
   int added = 0, i; /*Added controls if element has been altered or added*/
   scanf("%u%u%lf", &addNewElement.line, &addNewElement.column, &addNewElement.value);
   for (i = 0; i < lastElement; i++){
-    if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){ /*If coordinate already has a value*/
+    if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){
       if (addNewElement.value == elementZero){
         matrix[i] = addNewElement;
         removeZeros(matrix,i,lastElement-1);
