@@ -314,6 +314,7 @@ void compress_matrix(matrixElement *matrix){
           lineElements++;
 
       /*Verifies were it can place the line elements*/
+      /*Changes*/
       for (i = 0; i < nValues; i++){
         for (f = i; nValues[f] == elementZero; f++); /*Finds if there is enough space to place a line values*/
         if ((f-i) >= lineElements){
