@@ -29,7 +29,6 @@ typedef struct{
 double elementZero = 0.000; /* Zero is initially represented by 0 */
 int lastElement = 0; /* Must be global variable so it can be always altered */
 char file_name[MAXFILENAME];
-int auxiliarySize = 0; /*Used in compression*/
 
 /* Function Declaration/Prototype */
 #include "small_func.h" /* Library that contains auxiliary functions */
@@ -40,7 +39,7 @@ void printLines(matrixElement *matrix, unsigned int line);
 void printColumns(matrixElement *matrix, unsigned int column);
 void sort(matrixElement *matrix, int lineOrColumn);
 void save_matrix(matrixElement *matrix);
-void compress_matrix(matrixElement *matrix);
+/*void compress_matrix(matrixElement *matrix);*/
 
 /* Main Function */
 int main(int argc, char *argv[]){
@@ -169,12 +168,15 @@ void printElements(matrixElement *matrix){
 void printDetails(matrixElement *matrix){
   int superior_line = maxLine(matrix,0,lastElement), inferior_line = minLine(matrix,0,lastElement);
   int superior_colmn = maxColmn(matrix,0,lastElement), inferior_colmn = minColmn(matrix, 0,lastElement);
-  int size = (superior_line- inferior_line+1) * (superior_colmn-inferior_colmn+1);
+
+  int size = (superior_line-inferior_line+1) * (superior_colmn-inferior_colmn+1); /* Finds out the matrix size */
+  double ratio = (double)lastElement / size;
+
   if (lastElement == 0)
     printf("empty matrix\n");
   else
     printf("[%d %d] [%d %d] %d / %d = %.3f%% \n", inferior_line, inferior_colmn,
-    superior_line,superior_colmn, lastElement, size, matrix_density(matrix)*100);
+    superior_line,superior_colmn, lastElement, size, ratio*100);
 }
 
 void printLines(matrixElement *matrix, unsigned int line){
@@ -283,69 +285,4 @@ void save_matrix(matrixElement *matrix){
       fprintf(fptr,"%u %u %.3f\n", matrix[i].line, matrix[i].column, matrix[i].value);
     }
     fclose(fptr);
-}
-
-void compress_matrix(matrixElement *matrix){
-  if (matrix_density(matrix) > 0.5)
-    printf("dense matrix");
-  else{
-    matrixElement auxiliary[MAXELEMENTS];
-    unsigned int line;
-    double values[MAXELEMENTS];
-    int index[MAXELEMENTS], offset[MAXELEMENTS], i,f;
-    int nValues=0,nIndex=0,nOffset=0,lineElements = 0,l_inf,l_sup;
-
-    for (i = 0; i < lastElement; i++){
-      auxiliary[i] = matrix[i];
-    }
-    auxiliarySize = lastElement;
-
-    /*Fill values with elementZero and fill index with 0*/
-    for (i = 0; i < MAXELEMENTS; i++){
-      values[i] = elementZero;
-      index[i] = 0;
-    }
-
-    do{
-      line = highestDensityLine(auxiliary,auxiliarySize);
-      lineElements = 0;
-      for (i = 0; i < lastElement; i++)
-        if (matrix[i].line == line)
-          lineElements++;
-
-      /*Verifies were it can place the line elements*/
-      for (i = 0; i < nValues; i++){
-        for (f = i; nValues[f] == elementZero; f++); /*Finds if there is enough space to place a line values*/
-        if ((f-i) >= lineElements){
-          l_inf = i;
-          l_sup = f;
-        }
-      }
-      offset[line] = l_inf; /*put the values in its original positions*/
-      for (i = l_inf; i <= l_sup; i++){
-        for (f = 0; f < lastElement; f++)
-          if (matrix[f].line == line){
-            values[i] = matrix[f].value;
-            index[i] = line
-            break;
-          }
-      }
-
-      /*1-verify if can place line
-      2- place line*/
-
-      removeLine(auxiliary,line,auxiliarySize);
-
-    } while (auxiliarySize > 0);
-
-    printf("value = ")
-    for (i = 0; i < nValues; i++)
-      printf("%.3f ", values[i]);
-    printf("index = ")
-    for (i = 0; i < nIndex; i++)
-      printf("%d ", index[i]);
-    printf("offset = ")
-    for (i = 0; i < nOffset; i++)
-      printf("%d ", offset[i]);
-  }
 }

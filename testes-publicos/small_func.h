@@ -40,11 +40,13 @@ unsigned int maxColmn(matrixElement *matrix, int l_inf, int l_sup){
   return maxColmn;
 }
 
-double matrix_density(matrixElement *matrix){
-  int size = (maxLine(matrix,0,lastElement)- minLine(matrix,0,lastElement)+1) *
-  (maxColmn(matrix,0,lastElement)-minColmn(matrix, 0,lastElement)+1); /* Finds out the matrix size */
-  double density = (double)lastElement / size;
-  return density;
+double line_density(matrixElement *matrix, int line){
+  int line_elements = (maxColmn(matrix,0,lastElement)-minColmn(matrix,0,lastElement)+1);
+  int nonZeroElements = 0, i;
+  for (i = 0; i < lastElement; i++)
+    if (matrix[i].line == line)
+      nonZeroElements++;
+  return (nonZeroElements/ (double) line_elements);
 }
 
 void removeZeros(matrixElement *matrix, int l_inf, int l_sup){
@@ -85,44 +87,9 @@ void sort_columns(matrixElement *matrix, unsigned int l_inf, unsigned int l_sup)
   }
 }
 
-/* Compression-specific functions */
-double line_density(matrixElement *matrix, unsigned int line){
-  int line_elements = (maxColmn(matrix,0,lastElement)-minColmn(matrix,0,lastElement)+1);
-  int nonZeroElements = 0, i;
-  for (i = 0; i < lastElement; i++)
-    if (matrix[i].line == line)
-      nonZeroElements++;
-  return (nonZeroElements/ (double) line_elements);
-}
-
-unsigned int highestDensityLine(matrixElement *matrix, int auxiliarySize){
-  unsigned int line;
-  line = matrix[0].line;
-  for (i = 0; i < auxiliarySize; i++){
-    if(line_density(matrix,auxiliary[i].line) > line_density(matrix,line))
-      line = matrix[i].line;
-    else if (line_density(matrix,auxiliary[i].line) == line_density(matrix,line)){
-      if (matrix[i].line < line)
-        line = matrix[i].line;
-    }
-  }
-  return line;
-}
-
-void removeLine(matrixElement *matrix, unsigned int line, int auxiliarySize){
-  int i, f;
-  for (i = 0; i < lastElement; i++)
-    if (matrix[i].line == line)
-      for (f = i; f < lastElement-1; f++) /*Replaces element by the next one*/
-        matrix[f] = matrix[f+1];
-  auxiliarySize--;
-}
-
-
-
 /*Falta:
-- Como ler a matriz completa : com os args no inicio da main, esta nos slides - segmentation fault
-- fazer ordenacao - segunda ordenacao n funciona
+- Como ler a matriz completa : com os args no inicio da main, esta nos slides
+- fazer ordenacao
 - fazer compressao
 
 */
