@@ -115,8 +115,8 @@ int main(int argc, char *argv[]){
           double element;
           scanf("%lf", &element);
           elementZero = element;
-          if (lastElement > 0) /*Only need to call if there's no element in matrix*/
-            removeZeros(matrix,0,lastElement);
+          if (lastElement > 0) /*Only need to call if there's an element in matrix*/
+            removeZeros(matrix,0,lastElement-1);
           break;
         }
         case 'w':{
@@ -139,12 +139,13 @@ int main(int argc, char *argv[]){
 
 void addElement(matrixElement *matrix){
   matrixElement addNewElement;
-  int added = 0, i;
+  int added = 0, i; /*Added controls if element has been altered or added*/
   scanf("%u%u%lf", &addNewElement.line, &addNewElement.column, &addNewElement.value);
   for (i = 0; i < lastElement; i++){
     if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){ /*If coordinate already has a value*/
-      if (matrix[i].value == elementZero){
-        removeZeros(matrix,i,lastElement);
+      if (addNewElement.value == elementZero){
+        matrix[i] = addNewElement;
+        removeZeros(matrix,i,lastElement-1);
         break;
       } /* If changed to zero an element, remove that element*/
       matrix[i] = addNewElement;
@@ -239,33 +240,33 @@ void printColumns(matrixElement *matrix, unsigned int column){
 void sort(matrixElement *matrix, int lineOrColumn){ /*0 - line, 1 - column*/
   switch(lineOrColumn){
     case 0:{ /*Sort by lines first*/
-      unsigned int i, f, l_sup;
+      unsigned int i, f, sup_l;
 
       sort_lines(matrix, 0, lastElement); /*Sorted by lines*/
 
       /*------- Find the limits that contain the same line and sort it by columns ------*/
-      for (i=0,l_sup = i;i<lastElement;i++){
+      for (i=0,sup_l = i;i<lastElement;i++){
         unsigned int line = matrix[i].line;
         for (f = i; matrix[f].line == line; f++)
-          l_sup = f+1; /*Finds last position of same line*/
-        sort_columns(matrix,i,l_sup);
-        i = l_sup; /*i moves to the last position of the considered line*/
+          sup_l = f+1; /*Finds last position of same line*/
+        sort_columns(matrix,i,sup_l);
+        i = sup_l; /*i moves to the last position of the considered line*/
         /*and then the cycle will increment it by 1*/
       }
       break;
     }
     case 1:{  /*Sort by columns first*/
-      unsigned int i, f, l_sup;
+      unsigned int i, f, sup_l;
 
       sort_columns(matrix, 0, lastElement); /*Sorted by columns*/
 
       /*------- Find the limits that contain the same column and sort it by lines ------*/
-      for (i=0,l_sup = i;i<lastElement;i++){
+      for (i=0,sup_l = i;i<lastElement;i++){
         unsigned int column = matrix[i].column;
         for (f = i; matrix[f].column == column; f++)
-          l_sup = f+1; /*Finds last position of same column*/
-        sort_lines(matrix,i,l_sup);
-        i = l_sup; /*i moves to the last position of the considered column*/
+          sup_l = f+1; /*Finds last position of same column*/
+        sort_lines(matrix,i,sup_l);
+        i = sup_l; /*i moves to the last position of the considered column*/
         /*and then the cycle will increment it by 1*/
       }
       break;
@@ -280,7 +281,6 @@ void save_matrix(matrixElement *matrix){
 
     while((c=getchar())==' ');
     if (c != '\n'){
-      sort(matrix,0);
       buffer[0] = c;
       scanf("%s", &buffer[1]);
       strcpy(file_name,buffer);

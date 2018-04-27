@@ -7,37 +7,77 @@ while leaving the big functions for the main code
 
 Code Subject: Sparse Matrices
 **********************************************************/
-unsigned int minLine(matrixElement *matrix, int l_inf, int l_sup){
+unsigned int minLine(matrixElement *matrix, int inf_l, int sup_l){
   unsigned int minLine = matrix[0].line;
   int i;
-  for (i = l_inf; i < l_sup; i++)
+  for (i = inf_l; i < sup_l; i++)
     if (matrix[i].line < minLine)
       minLine = matrix[i].line;
   return minLine;
 }
-unsigned int minColmn(matrixElement *matrix, int l_inf, int l_sup){
+unsigned int minColmn(matrixElement *matrix, int inf_l, int sup_l){
   unsigned int minColmn = matrix[0].column;
   int i;
-  for (i = l_inf; i < l_sup; i++)
+  for (i = inf_l; i < sup_l; i++)
     if (matrix[i].column < minColmn)
       minColmn = matrix[i].column;
   return minColmn;
 }
-unsigned int maxLine(matrixElement *matrix, int l_inf, int l_sup){
+unsigned int maxLine(matrixElement *matrix, int inf_l, int sup_l){
   unsigned int maxLine = matrix[0].line;
   int i;
-  for (i = l_inf; i < l_sup; i++)
+  for (i = inf_l; i < sup_l; i++)
     if (matrix[i].line > maxLine)
       maxLine = matrix[i].line;
   return maxLine;
 }
-unsigned int maxColmn(matrixElement *matrix, int l_inf, int l_sup){
+unsigned int maxColmn(matrixElement *matrix, int inf_l, int sup_l){
   unsigned int maxColmn = matrix[0].column;
   int i;
-  for (i = l_inf; i < l_sup; i++)
+  for (i = inf_l; i < sup_l; i++)
     if (matrix[i].column > maxColmn)
       maxColmn = matrix[i].column;
   return maxColmn;
+}
+
+void removeZeros(matrixElement *matrix, int inf_l, int sup_l){
+  int i, f;
+  for (i = inf_l; i <= sup_l; i++){
+    if (matrix[i].value == elementZero){
+      for (f = i+1; f <= sup_l; f++){ /*Replaces element by the next one*/
+        matrix[f-1] = matrix[f];
+      }
+      i--;
+      sup_l--;
+      lastElement--;
+    }
+  }
+}
+
+void sort_lines(matrixElement *matrix, unsigned int inf_l, unsigned int sup_l){
+  int i,j;
+  for (i = inf_l+1; i < sup_l; i++) {
+    matrixElement v = matrix[i];
+    j = i-1;
+    while ( j>=inf_l && v.line < matrix[j].line ) {
+      matrix[j+1] = matrix[j];
+      j--;
+    }
+    matrix[j+1] = v;
+  }
+}
+
+void sort_columns(matrixElement *matrix, unsigned int inf_l, unsigned int sup_l){
+  int i,j;
+  for (i = inf_l+1; i < sup_l; i++) {
+    matrixElement v = matrix[i];
+    j = i-1;
+    while ( j>=inf_l && v.column < matrix[j].column ) {
+      matrix[j+1] = matrix[j];
+      j--;
+    }
+    matrix[j+1] = v;
+  }
 }
 
 double matrix_density(matrixElement *matrix){
@@ -45,45 +85,6 @@ double matrix_density(matrixElement *matrix){
   (maxColmn(matrix,0,lastElement)-minColmn(matrix, 0,lastElement)+1); /* Finds out the matrix size */
   double density = (double)lastElement / size;
   return density;
-}
-
-void removeZeros(matrixElement *matrix, int l_inf, int l_sup){
-  int i, f;
-  for (i = l_inf; i < l_sup; i++){
-    if (matrix[i].value == elementZero){
-      for (f = i; f < l_sup-1; f++){ /*Replaces element by the next one*/
-        matrix[f] = matrix[f+1];
-      }
-    i--;
-    lastElement--;
-    }
-  }
-}
-
-void sort_lines(matrixElement *matrix, unsigned int l_inf, unsigned int l_sup){
-  int i,j;
-  for (i = l_inf+1; i < l_sup; i++) {
-    matrixElement v = matrix[i];
-    j = i-1;
-    while ( j>=l_inf && v.line < matrix[j].line ) {
-      matrix[j+1] = matrix[j];
-      j--;
-    }
-    matrix[j+1] = v;
-  }
-}
-
-void sort_columns(matrixElement *matrix, unsigned int l_inf, unsigned int l_sup){
-  int i,j;
-  for (i = l_inf+1; i < l_sup; i++) {
-    matrixElement v = matrix[i];
-    j = i-1;
-    while ( j>=l_inf && v.column < matrix[j].column ) {
-      matrix[j+1] = matrix[j];
-      j--;
-    }
-    matrix[j+1] = v;
-  }
 }
 
 /* Compression-specific functions */
@@ -118,12 +119,3 @@ void removeLine(matrixElement *auxiliary, unsigned int line, int auxiliarySize){
         auxiliary[f] = auxiliary[f+1];
   auxiliarySize--;
 }
-
-
-
-/*Falta:
-- Como ler a matriz completa : com os args no inicio da main, esta nos slides - segmentation fault
-- sort pelas linhas nao funciona
-- fazer compressao
-
-*/

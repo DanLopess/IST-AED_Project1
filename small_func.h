@@ -44,11 +44,12 @@ void removeZeros(matrixElement *matrix, int inf_l, int sup_l){
   int i, f;
   for (i = inf_l; i <= sup_l; i++){
     if (matrix[i].value == elementZero){
-      for (f = i; f < sup_l-1; f++){ /*Replaces element by the next one*/
-        matrix[f] = matrix[f+1];
+      for (f = i+1; f <= sup_l; f++){ /*Replaces element by the next one*/
+        matrix[f-1] = matrix[f];
       }
-    i--;
-    lastElement--;
+      i--;
+      sup_l--;
+      lastElement--;
     }
   }
 }

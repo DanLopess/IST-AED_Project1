@@ -11,7 +11,7 @@ Code Subject: Sparse Matrices
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h> 
+#include <math.h>
 #include <ctype.h>
 
 
@@ -139,11 +139,12 @@ int main(int argc, char *argv[]){
 
 void addElement(matrixElement *matrix){
   matrixElement addNewElement;
-  int added = 0, i;
+  int added = 0, i; /*Added controls if element has been altered or added*/
   scanf("%u%u%lf", &addNewElement.line, &addNewElement.column, &addNewElement.value);
   for (i = 0; i < lastElement; i++){
     if (addNewElement.line == matrix[i].line && addNewElement.column == matrix[i].column){ /*If coordinate already has a value*/
-      if (matrix[i].value == elementZero){
+      if (addNewElement.value == elementZero){
+        matrix[i] = addNewElement;
         removeZeros(matrix,i,lastElement-1);
         break;
       } /* If changed to zero an element, remove that element*/
@@ -280,7 +281,6 @@ void save_matrix(matrixElement *matrix){
 
     while((c=getchar())==' ');
     if (c != '\n'){
-      sort(matrix,0);
       buffer[0] = c;
       scanf("%s", &buffer[1]);
       strcpy(file_name,buffer);
