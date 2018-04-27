@@ -276,11 +276,15 @@ void sort(matrixElement *matrix, int lineOrColumn){ /*0 - line, 1 - column*/
 void save_matrix(matrixElement *matrix){
     FILE *fptr;
     int i;
-    char buffer[MAXFILENAME];
+    char buffer[MAXFILENAME], c;
 
-    fgets(buffer,MAXFILENAME,stdin);
-    if(buffer[0] != '\n' ) /*Adds new file_name*/
+    while((c=getchar())==' ');
+    if (c != '\n'){
+      sort(matrix,0);
+      buffer[0] = c;
+      scanf("%s", &buffer[1]);
       strcpy(file_name,buffer);
+    }
 
     fptr = fopen(file_name, "w");
     if(fptr == NULL)
