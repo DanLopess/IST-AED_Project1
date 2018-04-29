@@ -1,38 +1,66 @@
 /********************************************************
 Library designed by Daniel Lopes
-
+April 25th '18
 This library has been created in order to simplify
 the main code by 'hiding' the small auxiliary functions
-while leaving the big functions for the main code
+while leaving the main functions for the .c file
 
 Code Subject: Sparse Matrices
 **********************************************************/
-unsigned int minLine(matrixElement *matrix, int inf_l, int sup_l){
-  unsigned int minLine = matrix[0].line;
+unsigned long int  minLine(matrixElement *matrix, int inf_l, int sup_l){
+  /*
+ * Function: minLine
+ * --------------------
+ *  sweeps the vector and finds the lowest line
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: a line number
+ */
+  unsigned long int  minLine = matrix[0].line;
   int i;
   for (i = inf_l; i < sup_l; i++)
     if (matrix[i].line < minLine)
       minLine = matrix[i].line;
   return minLine;
 }
-unsigned int minColmn(matrixElement *matrix, int inf_l, int sup_l){
-  unsigned int minColmn = matrix[0].column;
+unsigned long int  minColmn(matrixElement *matrix, int inf_l, int sup_l){
+  /*
+ * Function: minColmn
+ * --------------------
+ *  sweeps the vector and finds the lowest column
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: a column number
+ */
+  unsigned long int  minColmn = matrix[0].column;
   int i;
   for (i = inf_l; i < sup_l; i++)
     if (matrix[i].column < minColmn)
       minColmn = matrix[i].column;
   return minColmn;
 }
-unsigned int maxLine(matrixElement *matrix, int inf_l, int sup_l){
-  unsigned int maxLine = matrix[0].line;
+unsigned long int  maxLine(matrixElement *matrix, int inf_l, int sup_l){
+  /*
+ * Function: maxLine
+ * --------------------
+ *  sweeps the vector and finds the highest line
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: a line number
+ */
+  unsigned long int  maxLine = matrix[0].line;
   int i;
   for (i = inf_l; i < sup_l; i++)
     if (matrix[i].line > maxLine)
       maxLine = matrix[i].line;
   return maxLine;
 }
-unsigned int maxColmn(matrixElement *matrix, int inf_l, int sup_l){
-  unsigned int maxColmn = matrix[0].column;
+unsigned long int  maxColmn(matrixElement *matrix, int inf_l, int sup_l){
+  /*
+ * Function: maxColmn
+ * --------------------
+ *  sweeps the vector and finds the highest column
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: a column number
+ */
+  unsigned long int  maxColmn = matrix[0].column;
   int i;
   for (i = inf_l; i < sup_l; i++)
     if (matrix[i].column > maxColmn)
@@ -41,20 +69,69 @@ unsigned int maxColmn(matrixElement *matrix, int inf_l, int sup_l){
 }
 
 void removeZeros(matrixElement *matrix, int inf_l, int sup_l){
+  /*
+ * Function: removeZeros
+ * --------------------
+ *  sweeps the vector and replaces the element Zero by the next one, reducing
+ *  the size of the vector by one, done multiple times, as many times as the
+ *  number of elements Zero
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: none
+ */
   int i, f;
   for (i = inf_l; i <= sup_l; i++){
     if (matrix[i].value == elementZero){
       for (f = i+1; f <= sup_l; f++){ /*Replaces element by the next one*/
         matrix[f-1] = matrix[f];
       }
-      i--;
+      i--; /*element has been replaced so i and superior limit are reduced by 1*/
       sup_l--;
-      lastElement--;
+      lastElement--; /*Accesses the global variable*/
     }
   }
 }
 
-void sort_lines(matrixElement *matrix, unsigned int inf_l, unsigned int sup_l){
+int howToSort(){
+  /*
+ * Function: howToSort (auxiliary to sort)
+ * --------------------
+ *  functions reads input from stdin and decides whether to sort
+ *  by column or line first.
+ *  If '\n' was written, sorts by line first and returns 0
+ *  If 'column' was written, sorts by column first and returns 1
+ *  input: none
+ *  returns: 0 or 1
+ */
+  char buffer[MAXFILENAME]; /*Longest word expected is "column" which has 6chars
+                            but, for the sake of not having any overflow,
+                            the maximum size allowed will be MAXFILENAME*/
+  char c;
+  while((c=getchar())==' ');
+  if (c == '\n'){ /*Sort by lines (omitted parameter)*/
+    return 0;
+  }
+  else{
+    char aux_buffer[MAXFILENAME];
+    strcpy(aux_buffer,"column");
+    buffer[0] = c;
+    scanf("%s", &buffer[1]);
+    if (strcmp(buffer,aux_buffer) == 0) /*Sort by columns*/
+      return 1;
+    else{
+      return 2; /* Any value different from 1 and 0 would suffice*/
+                /* because only 1 and 0 are considered cases in the switch*/
+    }
+  }
+}
+
+void sort_lines(matrixElement *matrix, int  inf_l, int  sup_l){
+  /*
+ * Function: sort_lines (auxiliary function to sort)
+ * --------------------
+ *  sorts a certain vector of matrixElement type by lines
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: none
+ */
   int i,j;
   for (i = inf_l+1; i < sup_l; i++) {
     matrixElement v = matrix[i];
@@ -67,7 +144,14 @@ void sort_lines(matrixElement *matrix, unsigned int inf_l, unsigned int sup_l){
   }
 }
 
-void sort_columns(matrixElement *matrix, unsigned int inf_l, unsigned int sup_l){
+void sort_columns(matrixElement *matrix, int  inf_l, int  sup_l){
+  /*
+ * Function: sort_columns (auxiliary function to sort)
+ * --------------------
+ *  sorts a certain vector of matrixElement type by columns
+ *  input: *matrix (vector of type matrixElement),int inf_l, int sup_l
+ *  returns: none
+ */
   int i,j;
   for (i = inf_l+1; i < sup_l; i++) {
     matrixElement v = matrix[i];
@@ -80,42 +164,17 @@ void sort_columns(matrixElement *matrix, unsigned int inf_l, unsigned int sup_l)
   }
 }
 
-double matrix_density(matrixElement *matrix){
+double matrix_density(matrixElement *matrix, int lastElement){
+  /*
+ * Function: matrix_density
+ * --------------------
+ *  based on the maximum and minimum lines and columns and elements represented
+ *  calculates the matrix density
+ *  input: *matrix (vector of type matrixElement)
+ *  returns: the matrix density (double)
+ */
   int size = (maxLine(matrix,0,lastElement)- minLine(matrix,0,lastElement)+1) *
   (maxColmn(matrix,0,lastElement)-minColmn(matrix, 0,lastElement)+1); /* Finds out the matrix size */
   double density = (double)lastElement / size;
   return density;
-}
-
-/* Compression-specific functions */
-double line_density(matrixElement *matrix, unsigned int line){
-  int line_elements = (maxColmn(matrix,0,lastElement)-minColmn(matrix,0,lastElement)+1);
-  int nonZeroElements = 0, i;
-  for (i = 0; i < lastElement; i++)
-    if (matrix[i].line == line)
-      nonZeroElements++;
-  return (nonZeroElements/ (double) line_elements);
-}
-
-unsigned int highestDensityLine(matrixElement *matrix, matrixElement *auxiliary, int auxiliarySize){
-  unsigned int line,i;
-  line = matrix[0].line;
-  for (i = 0; i < auxiliarySize; i++){ /* Goes on matrix a checks that line density*/
-    if(line_density(matrix,auxiliary[i].line) > line_density(matrix,line))
-      line = matrix[i].line;
-    else if (line_density(matrix,auxiliary[i].line) == line_density(matrix,line)){
-      if (matrix[i].line < line)
-        line = matrix[i].line;
-    }
-  }
-  return line;
-}
-
-void removeLine(matrixElement *auxiliary, unsigned int line, int auxiliarySize){
-  int i, f;
-  for (i = 0; i < lastElement; i++)
-    if (auxiliary[i].line == line)
-      for (f = i; f < lastElement-1; f++) /*Replaces element by the next one*/
-        auxiliary[f] = auxiliary[f+1];
-  auxiliarySize--;
 }

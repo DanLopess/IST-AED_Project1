@@ -13,3 +13,8 @@ gcc $1 -o proj1
 ./proj1 < test09.in > test09.mine.out; diff -q test09.out test09.mine.out
 ./proj1 < test10.in > test10.mine.out; diff -q test10.out test10.mine.out
 ./proj1 good.mine.mat < test11.in > test11.mine.out; diff -q test11.out test11.mine.out
+./proj1 < ex0b.in > ex0b.mine.out; diff -q ex0b.out ex0b.mine.out
+./proj1 < ex1b.in > ex1b.mine.out; diff -q ex1b.out ex1b.mine.out
+./proj1 < ex2b.in > ex2b.mine.out; diff -q ex2b.out ex2b.mine.out
+./proj1 mat.in < ex3b.in > ex3b.mine.out; diff -q ex3b.out ex3b.mine.out
+./proj1 mat.in < ex4b.in > ex4b.mine.out; diff -q ex4b.out ex4b.mine.out
