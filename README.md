@@ -27,3 +27,6 @@ and printing the matrix
 - Mooshack gives 10 points
 - 6 questions wrong
 - Still some debug to be done
+
+### Final Version
+- Bugs in compression
