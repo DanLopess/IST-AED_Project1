@@ -6,6 +6,9 @@ All Rights Reserved © Daniel Lopes
 
 Code Subject: Sparse Matrices
 *************
+Known Bugs:
+- All local
+- Compression passes the local tests but exceeds time limit in Mooshack
 *************/
 
 #include <stdio.h>
@@ -125,7 +128,7 @@ void executeCommand(char command, matrixElement *matrix){
       break;
     }
     case 's':{
-      /*compress_matrix(matrix);*/
+      compress_matrix(matrix);
       break;
     }
   }
@@ -157,7 +160,6 @@ void addElement(matrixElement *matrix){
       break;
     }
   }
-
   if (!added && addNewElement.value != elementZero){
     matrix[lastElement] = addNewElement; /*Add new element different from zero*/
     lastElement++;
@@ -216,7 +218,6 @@ void printLines(matrixElement *matrix){
   unsigned long int  line;
 
   scanf("%lu", &line);
-
   for (i = 0; i < lastElement; i++){
     if(matrix[i].line == line){
       aux_matrix[size] = matrix[i];
@@ -255,7 +256,6 @@ void printColumns(matrixElement *matrix){
     unsigned long int  column;
 
     scanf("%lu", &column);
-
     for (i = 0; i < lastElement; i++){
       if(matrix[i].column == column){
         aux_matrix[size] = matrix[i];
@@ -349,4 +349,50 @@ void save_matrix(matrixElement *matrix){
       matrix[i].column, matrix[i].value);
     }
     fclose(fptr);
+}
+
+void compress_matrix(matrixElement *matrix){
+  /*
+ * Function: compress_matrix
+ * --------------------
+ *  function that executes the compression algorithm
+ *  input: matrixElement *matrix
+ *  returns: none
+ */
+  if (matrix_density(matrix,lastElement) > 0.5)
+    printf("dense matrix\n");
+  else{
+    int lastPos=0;/*stores the last position of vector and index*/
+    unsigned long int linesByDensity[2*MAXELEMENTS]; /*Stores lines by density*/
+    double value[2*MAXELEMENTS];
+    unsigned long int index[2*MAXELEMENTS];
+    unsigned long int offset[MAXELEMENTS][1];/*Each line (1st dimension) has 1 offset*/
+    int i,f,l,lineAdded = 0;
+    unsigned long int inf_l = minColmn(matrix,0,lastElement),
+    sup_l = maxColmn(matrix,0,lastElement);
+    int lineSize=sup_l-inf_l;
+    int lines_count = buildAuxiliary(matrix, linesByDensity,lastElement); /*number of lines*/
+
+    do{
+      for (f = 0; f <= 2*MAXELEMENTS; f++){ /*For each position in value and index*/
+        double completeLine[MAXELEMENTS];
+        if(testPlaceValues(matrix,value,lastElement,sup_l,inf_l,
+          f,completeLine,linesByDensity[lineAdded])){
+          /*add line to value and index*/
+          for (l = f, i = 0; l <= (f + lineSize); i++,l++){
+            if (completeLine[i] != elementZero ){
+            value[l] = completeLine[i]; /*adds value*/
+            index[l] = linesByDensity[lineAdded];/*adds line*/
+            }
+          }
+          if (lastPos < f + lineSize)
+            lastPos = f + lineSize;
+          offset[linesByDensity[lineAdded]][0] = f; /*Line's position stored in offset*/
+          lineAdded++;
+          break;
+        }
+      }
+    } while(lineAdded < lines_count);
+    compressedMatrix(value,index,offset,lastPos,matrix); /*Prints compression*/
+  }
 }
