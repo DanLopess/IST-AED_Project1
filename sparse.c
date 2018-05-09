@@ -7,7 +7,7 @@ All Rights Reserved © Daniel Lopes
 Code Subject: Sparse Matrices
 *************
 Known Bugs:
-- All local
+- All local testes passed except Mooshack
 - Compression passes the local tests but exceeds time limit in Mooshack
 *************/
 
